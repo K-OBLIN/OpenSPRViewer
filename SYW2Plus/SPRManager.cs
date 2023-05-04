@@ -116,75 +116,79 @@ namespace SYW2Plus {
             if (Path.GetExtension(filePath) == null) { return false; }
             if (File.Exists(filePath) == false) { return false; }
 
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
-                using (var br = new BinaryReader(fs)) {
-                    var spr = new SPRInfo();
+            try {
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
+                    using (var br = new BinaryReader(fs)) {
+                        var spr = new SPRInfo();
 
-                    // File Path
-                    spr.FilePath = filePath;
+                        // File Path
+                        spr.FilePath = filePath;
 
-                    // Signature
-                    spr.Signature = br.ReadUInt32();
-                    if (spr.Signature != 0x09) { return false; }
+                        // Signature
+                        spr.Signature = br.ReadUInt32();
+                        if (spr.Signature != 0x09) { return false; }
 
-                    // Frame Width, Height
-                    spr.FrameWidth = br.ReadUInt32();
-                    spr.FrameHeight = br.ReadUInt32();
+                        // Frame Width, Height
+                        spr.FrameWidth = br.ReadUInt32();
+                        spr.FrameHeight = br.ReadUInt32();
 
-                    // Number Of Frame
-                    spr.NumberOfFrame = br.ReadUInt32();
+                        // Number Of Frame
+                        spr.NumberOfFrame = br.ReadUInt32();
 
-                    // Dummy Data
-                    spr.DummyData = new UInt32[SIZE];
-                    for (var i = 0; i < spr.DummyData.Length; ++i) {
-                        spr.DummyData[i] = br.ReadUInt32();
-                    }
-
-                    // Offsets
-                    spr.Offsets = new UInt32[SIZE];
-                    for (var i = 0; i < spr.Offsets.Length; ++i) {
-                        spr.Offsets[i] = br.ReadUInt32();
-                    }
-
-                    // Compression Sizes
-                    spr.CompressionSizes = new UInt16[SIZE];
-                    for (var i = 0; i < spr.CompressionSizes.Length; ++i) {
-                        spr.CompressionSizes[i] = br.ReadUInt16();
-                    }
-
-                    // Last Offset
-                    spr.LastOffset = br.ReadUInt32();
-
-                    // Sprite Width, Height
-                    spr.SpriteWidth = br.ReadUInt32();
-                    spr.SpriteHeight = br.ReadUInt32();
-
-                    // Dummy Data 2
-                    spr.DummyData2 = new UInt32[SIZE2];
-                    for (var i = 0; i < spr.DummyData2.Length; ++i) {
-                        spr.DummyData2[i] = br.ReadUInt32();
-                    }
-
-                    // Pixels
-                    spr.Pixels = new byte[spr.FrameWidth * spr.FrameHeight * spr.NumberOfFrame];
-                    for (var i = 0; i < spr.Pixels.Length;) {
-                        var pixel = br.ReadByte();
-
-                        if (pixel == 0xFE) {
-                            var numberOfRepeat = br.ReadByte();
-
-                            for (var j = 0; j < numberOfRepeat; ++j) { spr.Pixels[i + j] = pixel; }
-
-                            i += numberOfRepeat;
-                        } else {
-                            spr.Pixels[i] = pixel;
-                            ++i;
+                        // Dummy Data
+                        spr.DummyData = new UInt32[SIZE];
+                        for (var i = 0; i < spr.DummyData.Length; ++i) {
+                            spr.DummyData[i] = br.ReadUInt32();
                         }
-                    }
 
-                    // Add
-                    SPRData.Add(spr);
+                        // Offsets
+                        spr.Offsets = new UInt32[SIZE];
+                        for (var i = 0; i < spr.Offsets.Length; ++i) {
+                            spr.Offsets[i] = br.ReadUInt32();
+                        }
+
+                        // Compression Sizes
+                        spr.CompressionSizes = new UInt16[SIZE];
+                        for (var i = 0; i < spr.CompressionSizes.Length; ++i) {
+                            spr.CompressionSizes[i] = br.ReadUInt16();
+                        }
+
+                        // Last Offset
+                        spr.LastOffset = br.ReadUInt32();
+
+                        // Sprite Width, Height
+                        spr.SpriteWidth = br.ReadUInt32();
+                        spr.SpriteHeight = br.ReadUInt32();
+
+                        // Dummy Data 2
+                        spr.DummyData2 = new UInt32[SIZE2];
+                        for (var i = 0; i < spr.DummyData2.Length; ++i) {
+                            spr.DummyData2[i] = br.ReadUInt32();
+                        }
+
+                        // Pixels
+                        spr.Pixels = new byte[spr.FrameWidth * spr.FrameHeight * spr.NumberOfFrame];
+                        for (var i = 0; i < spr.Pixels.Length;) {
+                            var pixel = br.ReadByte();
+
+                            if (pixel == 0xFE) {
+                                var numberOfRepeat = br.ReadByte();
+
+                                for (var j = 0; j < numberOfRepeat; ++j) { spr.Pixels[i + j] = pixel; }
+
+                                i += numberOfRepeat;
+                            } else {
+                                spr.Pixels[i] = pixel;
+                                ++i;
+                            }
+                        }
+
+                        // Add
+                        SPRData.Add(spr);
+                    }
                 }
+            } catch {
+                return false;
             }
 
             return true;

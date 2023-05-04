@@ -54,7 +54,7 @@ namespace OpenSPRViewer {
                 var subKey = regKey.CreateSubKey(RegistryPath, true);
                 var convertDir = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "data", "convert");
 
-                if (subKey != null) {
+                if (subKey == null) {
                     subKey.SetValue("ConvertDir", convertDir);
                     subKey.SetValue("Theme", 0);
                     subKey.SetValue("ColorStyle", 0);
